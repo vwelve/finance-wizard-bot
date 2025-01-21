@@ -229,3 +229,5 @@ pyrightconfig.json
 
 
 *.db
+
+.vscode/
