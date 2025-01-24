@@ -15,16 +15,15 @@ def setup_logging():
     # Create console handler and set formatter
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
-    console_handler.setLevel(logging.INFO)  # Set console to INFO level
+    console_handler.setLevel(logging.INFO)
 
     # Create file handler for persistent logs
-    file_handler = logging.FileHandler('bot.log')
+    file_handler = logging.FileHandler('bot.log', mode='w')
     file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.DEBUG)  # Set file handler to DEBUG level
+    file_handler.setLevel(logging.DEBUG)
 
     # Get the root logger and configure handlers
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)  # Set root logger to DEBUG to capture all levels
     root_logger.addHandler(console_handler)
     root_logger.addHandler(file_handler)
 

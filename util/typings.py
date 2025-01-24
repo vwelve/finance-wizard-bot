@@ -1,7 +1,22 @@
-from typing import Generic, TypeVar, Optional
+from typing import Any, List, Optional, Generic, TypeVar, Optional
+from pydantic import BaseModel, Field
+from datetime import datetime
 
 # Define a generic type variable
 T = TypeVar("T")
+
+
+class ConversationRecord(BaseModel):
+    id: str = Field(alias="_id")
+    user_id: int
+    guild_id: int
+    channel_id: int
+    messages: List[Any] = Field(default_factory=list)
+    last_updated: Optional[float] = Field(default_factory=lambda: datetime.now().timestamp())
+
+    class Config:
+        allow_population_by_field_name = True
+
 
 class Result(Generic[T]):
     def __init__(self, success: bool, data: Optional[T] = None, error: Optional[str] = None):
