@@ -43,6 +43,7 @@ async def on_ready():
     except Exception as e:
         logger.error(f"Failed to sync commands: {str(e)}")
 
+
 async def main():
     for ext in initial_extensions:
         await bot.load_extension(ext)
