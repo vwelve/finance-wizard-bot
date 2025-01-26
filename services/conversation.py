@@ -1,85 +1,76 @@
+from typing import Optional
+
 import discord
-from discord import DiscordException, PermissionOverwrite
-from util import db, ConversationRecord, Result
+from discord import DiscordException, PermissionOverwrite, Forbidden, TextChannel
+from services.database import DatabaseService
+from util import ConversationRecord, get_logger
+from util.typings import Result
 import logging
 
+logger = get_logger(__name__)
+
+
 class ConversationService:
-    @staticmethod
+    def __init__(self, db: DatabaseService):
+        self.db = db
+
     async def get_user_conversation(
-        guild: discord.Guild,
-        user: discord.Member
+            self,
+            guild: discord.Guild,
+            user: discord.Member
     ) -> Result[ConversationRecord]:
-        logging.info(f"Getting conversation record for user {user.id} in guild {guild.id}")
+        logger.info(f"Getting conversation record for user {user.id} in guild {guild.id}")
 
         try:
-            record_dict = db.get_collection("conversation_records").find_one({"user_id": user.id, "guild_id": guild.id})
-            if not record_dict:
-                logging.warning(f"No conversation record found for user {user.id} in guild {guild.id}")
+            result = self.db.get_conversation_record(guild.id, user.id)
+            if not result.success:
+                logger.warning(f"No conversation record found for user {user.id} in guild {guild.id}")
                 return Result.failure("No conversation record found.")
 
-            conversation_record = ConversationRecord(**record_dict)
+            conversation_record = ConversationRecord(**result.data)
             if not guild.get_channel(conversation_record.channel_id):
-                logging.warning(f"Channel no longer exists: {conversation_record.channel_id}")
+                logger.warning(f"Channel no longer exists: {conversation_record.channel_id}")
                 return Result.failure("Could not find your conversation channel.")
 
-            logging.debug(f"Conversation Record: {conversation_record}")
+            logger.debug(f"Conversation Record: {conversation_record}")
             return Result.success(conversation_record)
         except DiscordException as e:
-            logging.error(f"There was a DiscordException getting the conversation record: {e}")
+            logger.error(f"There was a DiscordException getting the conversation record: {e}")
             return Result.failure(f"There was an error getting the conversation record.")
         except Exception as e:
-            logging.error(f"There was an unexpected error getting the conversation record: {e}")
+            logger.error(f"There was an unexpected error getting the conversation record: {e}")
             return Result.failure(f"There was an unexpected error getting the conversation record.")
 
-
-    @staticmethod
     async def create_conversation_channel(
-        guild: discord.Guild,
-        user: discord.Member,
-    ) -> Result[ConversationRecord]:
+            self,
+            guild: discord.Guild,
+            user: discord.Member,
+    ) -> Result[Optional[TextChannel]]:
         overwrites = {
             guild.default_role: PermissionOverwrite(view_channel=False),
             user: PermissionOverwrite(view_channel=True, send_messages=True),
             guild.me: PermissionOverwrite(view_channel=True, send_messages=True),
         }
 
-        logging.info(f"Creating conversation channel for user {user.id} in guild {guild.id}")
+        logger.info(f"Creating conversation channel for user {user.id} in guild {guild.id}")
 
         try:
-            logging.debug(f"Permission Overwrites:\n {overwrites}")
+            logger.debug(f"Permission Overwrites:\n {overwrites}")
             channel = await guild.create_text_channel(
                 name=f"ai-chat-{user.name}",
                 overwrites=overwrites
             )
 
-            conversation_record = ConversationRecord(
-                user_id=user.id,
-                guild_id=guild.id,
-                channel_id=channel.id,
-                messages=[]
-            )
+            result = self.db.create_conversation_record(guild.id, user.id, channel.id)
 
-            db.get_collection("conversation_records").insert_one(conversation_record.model_dump())
+            if not result.success:
+                return result
 
-            return Result.success(conversation_record)
-        except Exception:
-            return Result.failure(f"There was an error creating the conversation channel.")
-
-    @staticmethod
-    async def reset_conversation(
-        conversation_record: ConversationRecord
-    ) -> Result[None]:
-        logging.info(f"Resetting conversation for user {conversation_record.user_id} in guild {conversation_record.guild_id}")
-
-        try:
-            db.get_collection("conversation_records").update_one(
-                {"_id": conversation_record.id},
-                {"$set": {"messages": []}}
-            )
+            return Result.success(channel)
+        except Forbidden as e:
+            logger.error(f"Permissions error when trying to create a channel for {user.id} in {guild.id}: {e}")
+            return Result.failure(f"I do not have the permissions to create a channel for you. Tell the administrators "
+                                  f"about this error.")
         except Exception as e:
-            logging.error(f"There was an error resetting the conversation: {e}")
-            return Result.failure(f"There was an error resetting the conversation.")
-
-        return Result.success()
-
-        
+            logger.error(f"Received unexpected error: {e}")
+            return Result.failure(f"There was an error creating the conversation channel.")
