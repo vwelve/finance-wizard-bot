@@ -1,4 +1,6 @@
-from typing import Any, List, Optional, Generic, TypeVar, Optional
+from typing import Any, List, Generic, TypeVar, Optional
+
+from bson import ObjectId
 from pydantic import BaseModel, Field
 from datetime import datetime
 
@@ -6,8 +8,24 @@ from datetime import datetime
 T = TypeVar("T")
 
 
+class PyObjectId(ObjectId):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, value):
+        if not ObjectId.is_valid(value):
+            raise ValueError(f"Invalid ObjectId: {value}")
+        return ObjectId(value)
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, field_schema):
+        field_schema.update(type="string")
+
+
 class ConversationRecord(BaseModel):
-    id: str = Field(alias="_id")
+    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     user_id: int
     guild_id: int
     channel_id: int
