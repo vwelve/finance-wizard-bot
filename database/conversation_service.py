@@ -1,6 +1,6 @@
 from typing import Dict, Optional
 import time
-from database.mongo_client import MongoClient
+from util.mongo_client import MongoClient
 
 class ConversationService:
     def __init__(self, mongo_client: MongoClient):
