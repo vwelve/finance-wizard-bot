@@ -20,7 +20,8 @@ required_env_vars = {
     "MONGODB_URI": os.getenv("MONGODB_URI"),
     "SPECIAL_ROLE_ID": os.getenv("SPECIAL_ROLE_ID"),
     "WATT_API_KEY": os.getenv("WATT_API_KEY"),
-    "SECRET_CHANNEL_ID": os.getenv("SECRET_CHANNEL_ID")
+    "SECRET_CHANNEL_ID": os.getenv("SECRET_CHANNEL_ID"),
+    "GUILD_ID": os.getenv("GUILD_ID")
 }
 
 # Check for missing environment variables
@@ -38,6 +39,7 @@ MONGODB_URI = required_env_vars["MONGODB_URI"]
 SPECIAL_ROLE_ID = int(required_env_vars["SPECIAL_ROLE_ID"])
 WATT_API_KEY = required_env_vars["WATT_API_KEY"]
 SECRET_CHANNEL_ID = int(required_env_vars["SECRET_CHANNEL_ID"])
+GUILD_ID = int(required_env_vars["GUILD_ID"])
 
 # Time / Tokens Settings
 MAX_TOKENS = 131072      # Example token limit
