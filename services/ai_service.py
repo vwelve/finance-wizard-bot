@@ -26,22 +26,26 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "search_web",
-            "description": "If a user requests data on a stock I don't have, I'll search a link like ["
-                           "https://finance.yahoo.com/quote/TICKER/history?p=TICKER] or from trading view like ["
-                           "https://www.tradingview.com/symbols/SYMBOL]. Also use if you need real time data.",
+            "description": "Search for financial data and provide the information as a URL. For stocks, generate a "
+                           "URL from platforms like Yahoo Finance (e.g., "
+                           "https://finance.yahoo.com/quote/TICKER/history?p=TICKER) or TradingView (e.g., "
+                           "https://www.tradingview.com/symbols/SYMBOL). For cryptocurrencies, generate a URL using "
+                           "Dexscreener (e.g., https://api.dexscreener.com/latest/dex/search?q=PROMPT). This tool "
+                           "retrieves URLs for real-time stock or cryptocurrency data.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "prompt": {
                         "type": "string",
-                        "description": "The URL or information you want to with the format of ["
-                                       "https://finance.yahoo.com/quote/TICKER/history?p=TICKER] or "
-                                       "[https://www.tradingview.com/symbols/SYMBOL]",
-                    },
+                        "description": "The search query for the financial data. For stocks, provide the ticker "
+                                       "symbol (e.g., 'AAPL' or 'TSLA') to generate a Yahoo Finance or TradingView "
+                                       "URL. For cryptocurrencies, provide the coin name or symbol (e.g., "
+                                       "'BTC' or 'Ethereum') to generate a Dexscreener URL. "
+                    }
                 },
-                "required": ["prompt"],
-            },
-        },
+                "required": ["prompt"]
+            }
+        }
     }
 ]
 
@@ -55,7 +59,9 @@ async def handle_tools(tool_calls: List[ChatCompletionMessageToolCall]) -> Resul
             function_to_call = AVAILABLE_FUNCTIONS.get(function_name)
             function_args = json.loads(tool_call.function.arguments)
 
+            logger.info(f"Calling {function_name} with args: {function_args}")
             function_response = await function_to_call(prompt=function_args.get("prompt"))
+            logger.info(f"Got function response: {function_response}")
 
             tool_responses.append(
                 {
@@ -127,7 +133,7 @@ class AIService:
             conversation: ConversationRecord,
             content: str
     ) -> Result[Tuple[ChatCompletionMessage, int]]:
-        if datetime.utcnow().timestamp() - conversation.last_updated >= 86400:
+        if datetime.utcnow().timestamp() - conversation.last_updated >= 1200:
             self.db.reset_conversation_record(conversation)
 
         message = self.create_user_message(content).data
