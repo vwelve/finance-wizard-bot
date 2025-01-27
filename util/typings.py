@@ -28,9 +28,8 @@ class ConversationRecord(BaseModel):
     id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
     user_id: int
     guild_id: int
-    channel_id: int
     messages: List[Any] = Field(default_factory=list)
-    last_updated: Optional[float] = Field(default_factory=lambda: datetime.now().timestamp())
+    last_updated: Optional[float] = Field(default_factory=lambda: datetime.utcnow().timestamp())
 
     class Config:
         allow_population_by_field_name = True
