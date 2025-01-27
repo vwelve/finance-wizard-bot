@@ -37,10 +37,14 @@ TOOLS = [
                 "properties": {
                     "prompt": {
                         "type": "string",
-                        "description": "The search query for the financial data. For stocks, provide the ticker "
+                        "description": "This should always be in url format. (i.e., "
+                                       "https://api.dexscreener.com/latest/dex/search?q=PROMPT, "
+                                       "https://finance.yahoo.com/quote/TICKER/history?p=TICKER, "
+                                       "https://www.tradingview.com/symbols/SYMBOL)The search query for the financial "
+                                       "data. For stocks, provide the ticker "
                                        "symbol (e.g., 'AAPL' or 'TSLA') to generate a Yahoo Finance or TradingView "
                                        "URL. For cryptocurrencies, provide the coin name or symbol (e.g., "
-                                       "'BTC' or 'Ethereum') to generate a Dexscreener URL. "
+                                       "'BTC' or 'Ethereum') to generate a Dexscreener URL."
                     }
                 },
                 "required": ["prompt"]
