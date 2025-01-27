@@ -19,7 +19,8 @@ required_env_vars = {
     "XAI_API_KEY": os.getenv("XAI_API_KEY"),
     "MONGODB_URI": os.getenv("MONGODB_URI"),
     "SPECIAL_ROLE_ID": os.getenv("SPECIAL_ROLE_ID"),
-    "WATT_API_KEY": os.getenv("WATT_API_KEY")
+    "WATT_API_KEY": os.getenv("WATT_API_KEY"),
+    "SECRET_CHANNEL_ID": os.getenv("SECRET_CHANNEL_ID")
 }
 
 # Check for missing environment variables
@@ -34,9 +35,10 @@ if missing_vars:
 DISCORD_BOT_TOKEN = required_env_vars["DISCORD_BOT_TOKEN"]
 XAI_API_KEY = required_env_vars["XAI_API_KEY"]
 MONGODB_URI = required_env_vars["MONGODB_URI"]
-SPECIAL_ROLE_ID = required_env_vars["SPECIAL_ROLE_ID"]
+SPECIAL_ROLE_ID = int(required_env_vars["SPECIAL_ROLE_ID"])
 WATT_API_KEY = required_env_vars["WATT_API_KEY"]
+SECRET_CHANNEL_ID = int(required_env_vars["SECRET_CHANNEL_ID"])
 
 # Time / Tokens Settings
 MAX_TOKENS = 131072      # Example token limit
-CONTEXT_TIMEOUT = 86400 # 24 hours in seconds
+CONTEXT_TIMEOUT = 86400  # 24 hours in seconds
