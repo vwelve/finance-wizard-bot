@@ -1,8 +1,8 @@
 import logging
-from pymongo.database import Database
+from datetime import datetime
 
-from services.ai_service import AIService
-from util import get_logger
+from pymongo.database import Database
+from util import get_logger, get_system_message
 from util.typings import ConversationRecord, Result
 from typing import List, Any
 
@@ -45,11 +45,14 @@ class DatabaseService:
             logger.error(f"There was an error inserting the conversation record: {e}")
             return Result.failure(f"There was an error inserting the conversation record")
 
-    def update_conversation_record(self, conversation_record: ConversationRecord, message: List[Any]) -> Result[None]:
+    def add_message(self, conversation_record: ConversationRecord, messages: List[Any]) -> Result[None]:
         try:
             self.collection.update_one(
                 {"_id": conversation_record.id},
-                {"$push": {"messages": {"$each": [msg.model_dump() for msg in message]}}}
+                {
+                    "$push": {"messages": {"$each": messages}},
+                    "$set": {"last_updated": datetime.utcnow().timestamp()}
+                },
             )
             return Result.success(None)
         except Exception as e:
