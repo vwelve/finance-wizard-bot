@@ -16,9 +16,10 @@ logger = logging.getLogger(__name__)
 # Required environment variables
 required_env_vars = {
     "DISCORD_BOT_TOKEN": os.getenv("DISCORD_BOT_TOKEN"),
-    "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
+    "XAI_API_KEY": os.getenv("XAI_API_KEY"),
     "MONGODB_URI": os.getenv("MONGODB_URI"),
-    "SPECIAL_ROLE_ID": os.getenv("SPECIAL_ROLE_ID")
+    "SPECIAL_ROLE_ID": os.getenv("SPECIAL_ROLE_ID"),
+    "WATT_API_KEY": os.getenv("WATT_API_KEY")
 }
 
 # Check for missing environment variables
@@ -31,9 +32,10 @@ if missing_vars:
 
 # Assign the validated environment variables
 DISCORD_BOT_TOKEN = required_env_vars["DISCORD_BOT_TOKEN"]
-OPENAI_API_KEY = required_env_vars["OPENAI_API_KEY"]
+XAI_API_KEY = required_env_vars["XAI_API_KEY"]
 MONGODB_URI = required_env_vars["MONGODB_URI"]
 SPECIAL_ROLE_ID = required_env_vars["SPECIAL_ROLE_ID"]
+WATT_API_KEY = required_env_vars["WATT_API_KEY"]
 
 # Time / Tokens Settings
 MAX_TOKENS = 131072      # Example token limit
