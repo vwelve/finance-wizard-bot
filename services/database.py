@@ -22,28 +22,26 @@ class DatabaseService:
 
             if result:
                 logger.info(f"Conversation record found for guild {guild_id} and user {user_id}")
-                return Result.success(ConversationRecord(**result))
-            else:
-                logger.warning(f"No conversation record found for guild {guild_id} and user {user_id}")
-                return Result.failure("No conversation record found.")
-        except Exception as e:
-            logger.error(f"There was an error getting the conversation record: {e}")
-            return Result.failure(f"There was an error getting the conversation record")
+                record = ConversationRecord(**result)
+                return Result.success(record)
 
-    def create_conversation_record(self, guild_id: int, user_id: int, channel_id: int) -> Result[None]:
-        try:
-            system_message = AIService.get_system_message().data
-            conversation_record = ConversationRecord(
+            logger.warning(f"No conversation record found for user {user_id} in guild {guild_id}.")
+
+            system_message = get_system_message().data
+            conversation = ConversationRecord(
                 guild_id=guild_id,
                 user_id=user_id,
-                channel_id=channel_id,
                 messages=[system_message]
             )
-            self.collection.insert_one(conversation_record.model_dump())
-            return Result.success(None)
+
+            self.collection.insert_one(conversation.model_dump(by_alias=True))
+
+            logger.info(f"Created conversation record for user {user_id} in guild {guild_id}.")
+            return Result.success(conversation)
         except Exception as e:
-            logger.error(f"There was an error inserting the conversation record: {e}")
-            return Result.failure(f"There was an error inserting the conversation record")
+            logger.error(f"There was an error getting the conversation record from MongoDB Collection: {e}")
+            return Result.failure("There was an unexpected error in the system."
+                                  " Try again later and report the error the admins.")
 
     def add_message(self, conversation_record: ConversationRecord, messages: List[Any]) -> Result[None]:
         try:
