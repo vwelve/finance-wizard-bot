@@ -59,9 +59,10 @@ class DatabaseService:
 
     def reset_conversation_record(self, conversation_record: ConversationRecord) -> Result[None]:
         try:
+            system_message = get_system_message().data
             self.collection.update_one(
                 {"_id": conversation_record.id},
-                {"$set": {"messages": []}}
+                {"$set": {"messages": [system_message], "last_updated": datetime.utcnow().timestamp()}}
             )
             return Result.success(None)
         except Exception as e:
