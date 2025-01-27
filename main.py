@@ -20,7 +20,6 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Load cogs
 initial_extensions = [
-    "cogs.admin_commands",
     "cogs.ai_commands"
 ]
 
