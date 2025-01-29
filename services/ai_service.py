@@ -118,6 +118,7 @@ class AIService:
 
             if not response_message.tool_calls:
                 self.db.add_message(conversation, [*messages, response_message.model_dump()])
+                logger.info(f"No tool calls returning result. Total Tokens used: {total_tokens}")
 
                 return Result.success((response_message, total_tokens))
 
