@@ -116,6 +116,11 @@ class AIService:
             response_message = completion.choices[0].message
             total_tokens = completion.usage.total_tokens
 
+            if not response_message.tool_calls and len(response_message.content) > 2000:
+                message = self.create_user_message("Content must be less than or equal to 2000 characters. But cannot "
+                                                   "be more than that.")
+                return await self._send_message(conversation, [*messages, response_message.model_dump(), message])
+
             if not response_message.tool_calls:
                 self.db.add_message(conversation, [*messages, response_message.model_dump()])
                 logger.info(f"No tool calls returning result. Total Tokens used: {total_tokens}")
